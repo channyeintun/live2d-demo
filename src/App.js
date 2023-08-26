@@ -1,23 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import * as PIXI from 'pixi.js';
+import { Live2DModel } from 'pixi-live2d-display/cubism4';
+import { useEffect } from 'react';
 
 function App() {
+  useEffect(() => {
+    // expose PIXI to window so that this plugin is able to
+    // reference window.PIXI.Ticker to automatically update Live2D models
+    window.PIXI = PIXI;
+
+    const app = new PIXI.Application({
+      view: document.getElementById('canvas'),
+    });
+
+    // no `await` here as it's not a Promise
+    const model = Live2DModel.fromSync('https://cdn.jsdelivr.net/gh/guansss/pixi-live2d-display/test/assets/haru/haru_greeter_t03.model3.json');
+
+    model.once('load', () => {
+      // now it's safe
+      app.stage.addChild(model);
+      model.scale.set(0.25);
+      model.x = 10;
+    });
+  }, [])
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <canvas id="canvas"></canvas>
     </div>
   );
 }
